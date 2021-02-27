@@ -62,7 +62,7 @@ export default {
   },
   async mounted() {
     try {
-      this.socket = socktConnect("http://localhost:3000");
+      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
       this.overlay = true;
       const res = await Functions.getFreindRequest(
         this.$store.getters.getUser._id

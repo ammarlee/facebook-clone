@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const User =require('../models/user')
+const path = require('path')
+const User =require(path.join(__dirname,'../models/user'))
 var jwt = require('jsonwebtoken')
-const Multer=require('../controlles/multer')
-const postController = require('../controlles/post/post')
+const Multer=require(path.join(__dirname,'../controlles/multer'))
+const postController = require(path.join(__dirname,'../controlles/post/post'))
 
 const protect= async(req,res,next)=>{
   let token

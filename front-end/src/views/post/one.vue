@@ -122,7 +122,7 @@ export default {
     };
   },
   mounted() {
-    this.socket = socktConnect("http://localhost:3000");
+    this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
     let f = this.post.reacts.find((p) => {
       return p.userId === this.user._id;
     });

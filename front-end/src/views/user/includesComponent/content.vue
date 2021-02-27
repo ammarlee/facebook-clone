@@ -2,7 +2,6 @@
   <v-col v-if="currentUser" cols="12" sm="6">
     <!-- create posts component -->
     <app-new-post></app-new-post>
-    <youtube-media :video-id="videoId"></youtube-media>
   <!-- print all posts in website -->
     <app-all-posts v-for="(post,key) in posts" :post="post" heights="270" :key="key" :id="'div'+post._id">
       <div slot="options">

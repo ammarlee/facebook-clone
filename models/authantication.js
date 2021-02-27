@@ -1,9 +1,7 @@
-module.exports = (req,resp,next)=>{
+module.exports = (req,res,next)=>{
     if (!req.session.isAuthanticated) {
-        console.log(`there is no user ever >>>>>>>>>>>>>>`);
-      return  resp.redirect('/')
+      return  res.redirect('/')
         
     }
-    console.log(`there is  user  >>>>>>>>>>>>>>!!!!!!`);
     next()
 }

@@ -1,10 +1,10 @@
 const path = require("path");
 const fs = require("fs");
-const Post = require("../../models/post");
-const Comment = require("../../models/comment");
-const User = require("../../models/user");
-const clody = require("../cloud");
-const io = require("../../socket");
+const Post = require(path.join(__dirname,"../../models/post"));
+const Comment = require(path.join(__dirname,"../../models/comment"));
+const User = require(path.join(__dirname,"../../models/user"));
+const clody = require(path.join(__dirname,"../cloud"));
+const io = require(path.join(__dirname,"../../socket"));
 const algoliasearch = require("algoliasearch");
 const client = algoliasearch("5AX3QTWUTZ", "51ba31f56313488518c91d7571cddcde");
 const index = client.initIndex("facebook");

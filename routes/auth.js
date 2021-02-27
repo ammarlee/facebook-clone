@@ -1,11 +1,12 @@
 var express = require('express');
+const path=require("path")
 var router = express.Router();
-const AuthController=require('../controlles/auth/auth')
-const protectRoutes = require('./protect/protect')
+const AuthController=require(path.join(__dirname,'../controlles/auth/auth'))
+const protectRoutes = require(path.join(__dirname,'./protect/protect'))
 const { body, validationResult } = require("express-validator");
 const { check } = require("express-validator");
 const bycript = require('bcryptjs')
-const User = require('../models/user')
+const User = require(path.join(__dirname,'../models/user'))
 
 
 router.post('/signup',[

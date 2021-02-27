@@ -1,17 +1,16 @@
 const path = require("path");
 const fs = require("fs");
-const Post = require("../../models/post");
-const User = require("../../models/user");
-const Chat = require("../../models/chat");
-const io = require('../../socket')
-const Msg = require("../../models/message");
-const clody =require('../cloud')
-const { cloudinary } = require("../cloudinary");
+const Post = require(path.join(__dirname,"../../models/post"));
+const User = require(path.join(__dirname,"../../models/user"));
+const Chat = require(path.join(__dirname,"../../models/chat"));
+const io = require(path.join(__dirname,'../../socket'))
+const Msg = require(path.join(__dirname,"../../models/message"));
+const clody =require(path.join(__dirname,'../cloud'))
+const { cloudinary } = require(path.join(__dirname,"../cloudinary"));
 
 exports.profile = async (req, res, next) => {
   const friendId = req.params.friendId;
   const userId = req.body.userId;
-  console.log(userId);
   try {
     const user = await User.findOne({ _id: friendId });
     // 1-check if the user is exist friends List or not 
@@ -33,7 +32,6 @@ exports.profile = async (req, res, next) => {
         msg: "you got your profile informations",
       });
   } catch (error) {
-      console.log(error);
     res.status(400).json({ error, successful: false });
   }
 };
@@ -115,7 +113,6 @@ exports.EditCover = async (req, res, next) => {
   const userId = req.params.userId;
   let files = req.files
   try {
-    // sssssssssss
     const uploader = async(path)=>await clody.uploads(path)
     let urls = []
     for(let file of files){
@@ -161,7 +158,6 @@ exports.othersMsg=async(req,res,next)=>{
 
     
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error });
   }
 
@@ -202,13 +198,11 @@ exports.acceptNewFriend = async (req, res, next) => {
    res.status(200).json({ msg: "you have added new friend", user, friend });
     // }
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error });
   }
 };
 exports.friendRequestnotifications = async (req, res, next) => {
   const { userId, friendId, img, name,msg } = req.body;
-  console.log(req.body);
   try {
     const user = await User.findOne({ _id: friendId });
     const date = Date.now()
@@ -261,7 +255,6 @@ exports.rejectNewFriend = async (req, res, next) => {
 
     res.status(200).json({ msg: "you have added new friend", user2, friend2 });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error });
   }
 };
@@ -283,7 +276,6 @@ exports.addFriendRequest = async (req, res, next) => {
     //    await  Promise.all([friend, user])
     res.status(200).json({ user, friend });
   } catch (error) {
-    console.log(error);
     res.status(404).json({ error });
   }
 };
@@ -345,7 +337,6 @@ exports.getMessage = async (req, res, next) => {
       
     res.status(200).json({ chat,ChatDetails, successful: true });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error, successful: false });
   }
 };
@@ -392,7 +383,6 @@ exports.deletFriend = async (req, res, next) => {
       .status(200)
       .json({ userfinsih:user1, successful: true, msg: "you have deleted a friend" });
   } catch (error) {
-    console.log(error);
     res.status(400).json(error);
   }
 };

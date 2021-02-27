@@ -136,7 +136,7 @@ export default {
     try {
       this.overlay = true
       let currentuser = this.$store.getters.getUser._id
-      this.socket = socktConnect("http://localhost:3000");
+      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
       const res = await Functions.getusers();
       const u = await Functions.getCurrentUser(currentuser)
       this.user=u.data.user

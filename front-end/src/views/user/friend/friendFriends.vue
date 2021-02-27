@@ -72,7 +72,7 @@ export default {
     try {
       this.overlay = true;
       const res = await Functions.getFriends(this.$route.params.id);
-      this.socket = socktConnect("http://localhost:3000");
+      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
       this.users = res.data.users;
       this.friendsList = res.data.friends.filter((i) => {
         return i.friendId._id !== this.$store.getters.getUser._id;

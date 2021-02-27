@@ -190,7 +190,7 @@ export default {
       });
       console.log(this.theAnotherUser2);
       this.overlay = false;
-      this.socket = socktConnect("http://localhost:3000");
+      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
       this.socket.emit("JoinChat", this.chatId);
       this.socket.on("newMessage", (data) => {
         console.log("new msg");

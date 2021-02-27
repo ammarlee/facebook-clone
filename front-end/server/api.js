@@ -1,5 +1,5 @@
 import axios from 'axios';
-const url = "http://localhost:3000/"
+const url = "https://facebook-clones.herokuapp.com/"
 //  find the cooki name
 const find= function readCookie(name) {
     var nameEQ = name + "=";

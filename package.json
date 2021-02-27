@@ -57,7 +57,8 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "NODE_ENV=production node app.js",
+    "start:dev": "nodemon app.js"
   },
   "author": "ammar",
   "license": "ISC"

@@ -83,7 +83,7 @@ export default {
 
   mounted() {
     if (this.user) {
-      this.socket = socktConnect("http://localhost:3000");
+      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
       // join the room
       this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser);
 

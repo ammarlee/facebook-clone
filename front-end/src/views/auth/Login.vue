@@ -90,15 +90,15 @@ import Functions from "../../../server/api"
 export default {
   name:'login',
 mounted() {
-     this.socket = socktConnect('http://localhost:3000')
+     this.socket = socktConnect('https://facebook-clones.herokuapp.com/')
   
 },
   data() {
     return {
       socket:'',
       user:{
-        email:'ammar50@gmail.com',
-        password:'123123123',
+        email:'',
+        password:'',
       },
       show2: false,
       form: false,

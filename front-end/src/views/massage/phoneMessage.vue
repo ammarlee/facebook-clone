@@ -36,7 +36,7 @@ import socktConnect from "socket.io-client";
 export default {
   name: "message",
   mounted() {
-    this.socket = socktConnect("http://localhost:3000");
+    this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
     if (this.$store.getters.getUser) {
       this.socket.emit("goOnlineTwo", this.$store.getters.getUser);
     }

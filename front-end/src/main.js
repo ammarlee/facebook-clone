@@ -11,8 +11,6 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import Functions from "../server/api";
 import VueScreen from 'vue-screen';
 import links from './views/user/includesComponent/linkes.vue'
-import VueYouTubeEmbed from 'vue-youtube-embed'
-Vue.use(VueYouTubeEmbed, { global: true, componentId: "youtube-media" })
 Vue.use(VueScreen);
 Vue.component('app-links', links)
 Vue.mixin({
@@ -103,7 +101,7 @@ Vue.mixin({
 });
 
 const base = axios.create({
-  baseURL: "http://localhost:3000/",
+  baseURL: "https://facebook-clones.herokuapp.com/",
 });
 Vue.prototype.$http = base;
 
@@ -125,12 +123,12 @@ new Vue({
       const users = await Functions.getusers();
       this.$store.dispatch("getPosts", posts.data.posts);
       this.$store.commit("setUsers", users.data.users);
-      const socket = socktConnect("http://localhost:3000");
+      const socket = socktConnect("https://facebook-clones.herokuapp.com/");
       let userToken = localStorage.getItem("userToken");
       if (userToken) {
         if (this.user) {
 
-          this.socket = socktConnect("http://localhost:3000");
+          this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
           // join the room
           this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser
           );

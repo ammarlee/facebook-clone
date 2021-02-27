@@ -1,13 +1,13 @@
 var path = require('path');
 const bycript = require('bcryptjs')
 const fs = require('fs')
-const clody = require('../cloud')
-const Post =require('../../models/post')
-const User =require('../../models/user')
-const io = require('../../socket')
+const clody = require(path.join(__dirname,'../cloud'))
+const Post =require(path.join(__dirname,'../../models/post'))
+const User =require(path.join(__dirname,'../../models/user'))
+const io = require(path.join(__dirname,'../../socket'))
 const PDFDocument = require('pdfkit');
-const {cloudinary} = require('../cloudinary');
-const Socket = require('../../socket');
+const {cloudinary} = require(path.join(__dirname,'../cloudinary'));
+const Socket = require(path.join(__dirname,'../../socket'));
 // Socket.getIO().emit('category',{action:'createProduct',product:products,msg:'new product has been added '})
   
   exports.posts =async(req,res,next)=>{ 
@@ -61,8 +61,6 @@ const Socket = require('../../socket');
     exports.editPost=async(req,res,next)=>{
       const postId = req.params.postId
       const description = json.parse(req.body.description)
-      // const description = req.body.description
-      // console.log(req.files);
     const files = req.files
   try {
           if(files.length <=0){
@@ -86,7 +84,6 @@ const Socket = require('../../socket');
   
       
   } catch (error) {
-    console.log(error);
               res.status(400).json({error, success:false })
             }
         }

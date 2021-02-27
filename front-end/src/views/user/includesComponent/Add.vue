@@ -4,14 +4,14 @@
     <app-right-drawer></app-right-drawer>
   
 
-    <v-toolbar color="orange accent-1 " >
+    <v-toolbar color="orange accent-1 "  >
       <v-app-bar-nav-icon class="mr-6 pr-4" fab  style="cursor: pointer;">
-        <v-icon  x-large class="d-none white--text mb-5 d-sm-block">mdi-facebook</v-icon>
+        <v-icon  x-large class="d-none ml-4 white--text mb-5  d-sm-block">mdi-facebook</v-icon>
         <v-icon large class="d-sm-none" @click="drawer=!drawer">mdi-menu</v-icon>
       </v-app-bar-nav-icon>
 
       <!-- searching bar -->
-      <app-searching-bar class="mr-0"></app-searching-bar>
+      <app-searching-bar class="mr-0 ml-10"></app-searching-bar>
      
       <!-- right icon for online users -->
       <v-app-bar-nav-icon class="mr-0  d-sm-none" @click="rightDrawer=!rightDrawer" style="cursor: pointer;">
@@ -19,7 +19,7 @@
       </v-app-bar-nav-icon>
 
       <!-- middle icons and routes  -->
-      <v-toolbar-title style="height:67px" class="title mt-6 pt-1 mr-3 d-none d-md-inline">
+      <v-toolbar-title style="height:67px" class="title mt-6 ml-10 pt-1 mr-3 d-none d-sm-inline">
         <div  class="d-flex white--text justify-space-around">
           <div title="Home">
             <router-link to="/" tag="span" exact>
@@ -270,7 +270,7 @@ export default {
   },
   mounted() {
     this.test = this.$store.getters.notifications;
-      this.socket = socktConnect("http://localhost:3000");
+      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
     
   },
   methods: {
@@ -298,14 +298,16 @@ export default {
         this.$router.push("/singlePost/" + id);
         }
     },
-    navegateToProfile(id) {
-      if (this.$route.name === "Home") {
-        this.$router.push("/FriendProfile/" + id);
-      } else {
-        this.$router.push("/").then(() => {
-          this.$router.push("/FriendProfile/" + id);
+    navegateToProfile() {
+      if (this.$route.name === "request") {
+          this.$router.push("/").then(() => {
+          this.$router.push("/friends-request/");
         });
+      } else {
+        this.$router.push("/friends-request/");
+      
       }
+
     },
 
     async logout() {

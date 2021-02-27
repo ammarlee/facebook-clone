@@ -92,7 +92,7 @@ import axios from 'axios'
         this.isLoading = true
 
         // Lazily load input items
-        axios.post(`http://localhost:3000/searching-post`,{name:val})
+        axios.post(`https://facebook-clones.herokuapp.com/searching-post`,{name:val})
           .then(res => {
             this.items = res.data
           })
