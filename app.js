@@ -108,7 +108,6 @@ let getFriendsTwo = async(userId)=>{
   }
   
 }
-const moment = require('moment')
 let newMsg = async(data)=>{
   try {
     const msg = await new Message({
@@ -155,8 +154,8 @@ mongoose
   .connect(MONGODB_URI)
   .then(() => {
     // app.listen(3000);
-    const server = app.listen(3000);
-    const io = require(path.join(__dirname,'./socket')).init(server)
+    const server = app.listen(port);
+    const io = require('./socket').init(server)
     io.onlineUsersTwo ={}
 
    io.on('connection',socket=>{
