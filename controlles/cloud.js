@@ -10,7 +10,7 @@ exports.uploads = (file)=>{
         cloudinary.uploader.upload(file, (error, result)=>{
             if (!error) {
                 resolv({
-                    url:result.url,
+                    url:result.secure_url,
                     id:result.public_id
                 })
                 

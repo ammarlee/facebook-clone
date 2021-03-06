@@ -66,13 +66,13 @@
  
 <script>
 import Functions from "../../../../server/api";
-import socktConnect from "socket.io-client";
+
 export default {
   async mounted() {
     try {
       this.overlay = true;
       const res = await Functions.getFriends(this.$route.params.id);
-      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+      this.socket = this.$soketio;
       this.users = res.data.users;
       this.friendsList = res.data.friends.filter((i) => {
         return i.friendId._id !== this.$store.getters.getUser._id;

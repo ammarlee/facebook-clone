@@ -5,8 +5,8 @@
     </v-overlay>
     <v-container v-if="!overlay">
       <v-row>
-        <v-col cols="12">
-          <v-card class="mx-auto">
+        <v-col cols="12" v-if="posts">
+          <v-card v-if="posts.length >0" class="mx-auto">
             <v-toolbar color="cyan" dark>
               <v-toolbar-title>saved Posts</v-toolbar-title>
             </v-toolbar>
@@ -16,14 +16,22 @@
                 <template v-for="(post) in posts" style="cursor: pointer">
                   <v-col cols="12" :key="post._id">
                     <v-list-item @click="navegatetoPost(post.postId)">
-                      <v-list-item-avatar>
+                      <v-list-item-avatar v-if="post.img">
                         <v-img :src="post.img"></v-img>
+                      </v-list-item-avatar>
+                       <v-list-item-avatar v-else>
+                        <v-icon>mdi-facebook</v-icon>
                       </v-list-item-avatar>
 
                       <v-list-item-content>
-                        <v-list-item-title class="text-capitalize font-weight-bold" v-html="post.description">test</v-list-item-title>
+                        <v-list-item-title
+                          class="text-capitalize font-weight-bold"
+                          v-html="post.description"
+                        ></v-list-item-title>
 
-                        <v-list-item-action class="flex-row"></v-list-item-action>
+                        <div style=" position: absolute;right: 4px;top: 8px"><v-btn class="pink--text" icon @click.stop="removePostFromFavourite(post)">
+                          <v-icon>
+                            mdi-delete</v-icon></v-btn></div>
                       </v-list-item-content>
                     </v-list-item>
                   </v-col>
@@ -31,6 +39,9 @@
               </v-row>
             </v-list>
           </v-card>
+        </v-col>
+        <v-col cols="12" v-if="posts.length <=0">
+          <h2 class="text-center text-capitalize pink--text">there is no saved posts for you</h2>
         </v-col>
       </v-row>
     </v-container>
@@ -57,9 +68,23 @@ export default {
       this.errors = error;
     }
   },
+
   methods: {
     navegatetoPost(id) {
       this.$router.push("/singlePost/" + id);
+    },
+
+    async removePostFromFavourite(post) {
+      try {
+        const res = await Functions.removeSaved({
+          postId: post.postId,
+          userId: this.currentUser._id,
+        });
+        this.posts =res.data.user
+        console.log(res.data.user);
+      } catch (error) {
+        this.errors = error;
+      }
     },
   },
 };

@@ -5,13 +5,12 @@
     </v-overlay>
 
     <v-app>
-      <v-main class="grey lighten-3" v-if="currentUser">
-        <v-container id="inspire" fluid >
+      <v-main class="grey lighten-3 pt-2" v-if="currentUser">
+        <v-container id="inspire" fluid>
           <v-row>
             <!-- left bar content -->
             <v-col cols="12" sm="3" class="d-none d-sm-block rounded-lg">
               <v-sheet rounded="lg" min-height="268">
-              
                 <router-link :to="'/profile/'+user._id" tag="div">
                   <v-list two-line class="pb-0" style="cursor: pointer">
                     <template>
@@ -62,8 +61,7 @@
 </template>
 <script>
 import content from "./user/includesComponent/content";
-import socktConnect from "socket.io-client";
-import Functions from "../../server/api";
+
 import onlineUsers from "./massage/onlineUsers";
 import chatting from "./massage/massageTest";
 
@@ -83,7 +81,8 @@ export default {
 
   mounted() {
     if (this.user) {
-      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+     
+      this.socket = this.$soketio;
       // join the room
       this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser);
 
@@ -99,29 +98,32 @@ export default {
           senderId: data.sender._id,
           date: Date.now(),
         };
-
         this.$store.commit("pushNewMessage", pushMsg);
       });
       //  socket for likes
       this.socket.on("newLikeNotification", (data) => {
-        console.log("home page notification for like");
-        this.addTheNotification(data);
-        this.playSound(
-          "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-        );
+        if (this.user._id.toString() == data.userId.toString()) { return
+        } else {
+          this.addTheNotification(data);
+          this.playSound(
+            "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
+          );
+        }
       });
       //   socket for new comments
       this.socket.on("newCommentNotification", (data) => {
-        console.log("home page notification for comments");
-        this.addTheNotification(data);
-        this.playSound(
-          "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-        );
+        if (this.user._id.toString() == data.userId.toString()) { return; 
+          // console.log("the same user");
+        } else {
+          this.addTheNotification(data);
+          this.playSound(
+            "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
+          );
+        }
       });
 
       // //  get notification for friends request
       this.socket.on("newRequest", (data) => {
-        console.log("from the home vue ");
         this.playSound(
           "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
         );
@@ -135,31 +137,11 @@ export default {
           msg: data.msg,
           date: data.date,
         };
-
+this.addTheNotification({name:data.name,msg:data.msg,img:data.img});
         this.$store.commit("friendRequestNotifications", all);
       });
-    } else {
-      let userToken = localStorage.getItem("userToken");
-      if (userToken) {
-        Functions.getuserWithToken(userToken).then((currentUser) => {
-          this.$store.dispatch("setUser", currentUser.data.user);
-          this.$store.dispatch("setAuth", currentUser.data.authanticated);
-          this.$store.commit(
-            "setNotifications",
-            currentUser.data.user.friendsNotifications
-          );
-          this.$store.commit(
-            "setAllNotificationsAfterLogin",
-            currentUser.data.user.AllNotifications
-          );
-          this.$store.commit(
-            "setUserMessages",
-            currentUser.data.user.messageNotifications
-          );
-        });
-      } else {
-        this.$router.push("/login");
-      }
+    } else{
+      this.$router.push('/login')
     }
   },
   computed: {
@@ -192,18 +174,10 @@ export default {
       this.thePosition = window.innerHeight - 334;
     },
     nag() {
-      console.log(window.innerHeight);
-      // return window.innerHeight
       window.addEventListener("resize", () => {
         return window.innerHeight;
       });
-      //   this.thePosition = window.innerHeight-334;
-      //        window.scrollTo({
-      //   top: 300,
-      //   behavior: 'smooth'
-      // });
     },
-
     addTheNotification(data) {
       this.sweetAlertwithImage(
         data.name,

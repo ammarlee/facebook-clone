@@ -1,26 +1,30 @@
 const path = require("path");
 const fs = require("fs");
-const Post = require(path.join(__dirname,"../../models/post"));
-const User = require(path.join(__dirname,"../../models/user"));
-const Chat = require(path.join(__dirname,"../../models/chat"));
-const io = require(path.join(__dirname,'../../socket'))
-const Msg = require(path.join(__dirname,"../../models/message"));
-const clody =require(path.join(__dirname,'../cloud'))
-const { cloudinary } = require(path.join(__dirname,"../cloudinary"));
+const Post = require("../../models/post");
+const User = require("../../models/user");
+const Chat = require("../../models/chat");
+const io = require('../../socket')
+const Msg = require("../../models/message");
+const clody =require('../cloud')
+const { cloudinary } = require("../cloudinary");
 
 exports.profile = async (req, res, next) => {
   const friendId = req.params.friendId;
   const userId = req.body.userId;
   try {
-    const user = await User.findOne({ _id: friendId });
+    const user = await User.findOne({ _id: friendId }).lean();
+    const user2 = await User.findOne({ _id: userId }).lean();
     // 1-check if the user is exist friends List or not 
     const isFriend = user.newFriendsTest.some((p) => {
       return p.friendId.toString() == userId.toString();
     });
     // 2-check if the user is exist friend requests or not 
     const isinRequests = user.friendsRequests.some((i) => {
-      console.log(i);
       return i.toString() == userId.toString();
+    });
+    // 3-check if the user is exist friend requests or not 
+    const newFriendsRequests = user2.newFriendsRequests.some((i) => {
+      return i.toString() == friendId.toString();
     });
 
     res
@@ -28,6 +32,7 @@ exports.profile = async (req, res, next) => {
       .json({
         infriendsList: isFriend,
         inRequestFriends: isinRequests,
+        newFriendsRequests,
         user,
         msg: "you got your profile informations",
       });
@@ -54,19 +59,29 @@ exports.getUserWithToken=async (req, res, next) => {
   const userToken = req.params.userToken;
   try {
     const user = await User.findOne({ userToken: userToken }).lean();
-    res
+    if (user) {
+      
+      res
+        .status(200)
+        .json({
+          user,
+          msg: "you got your profile informations",
+        });
+    }else{
+      res
       .status(200)
       .json({
-        user,
+        user:null,
         msg: "you got your profile informations",
       });
+
+    }
   } catch (error) {
     res.status(400).json({ error, successful: false });
   }
 };
 exports.currentUser = async (req, res, next) => {
   let userId = req.params.id || req.user._id;
-  console.log(userId);
   try {
     const user = await User.findOne({ _id: userId }).lean();
     res.status(200).json({ user, success: true });
@@ -115,32 +130,35 @@ exports.EditCover = async (req, res, next) => {
   try {
     const uploader = async(path)=>await clody.uploads(path)
     let urls = []
-    for(let file of files){
-      const {path} = file
+      const path =files[0].path
       const newpath = await uploader(path)
       urls.push(newpath)
-    }
-    const images = urls.map(p=>{
-      return p.url
-    })
+    const newImg = urls[0].url
     const user = await User.findOneAndUpdate(
       { _id: userId },
-      { coverImg: images[0] }
+      { coverImg: newImg }
     );
     return res
       .status(200)
-      .json({ user,newImage:images[0], msg: "you have edited your profile cover image" });
+      .json({ user,newImage:newImg, msg: "you have edited your profile cover image" });
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error, successful: false });
   }
 };
 exports.othersMsg=async(req,res,next)=>{
-  console.log(req.body);
   const { userId, otherId } = req.body;
   try {
+    // 1- check if there is old msg for them or not 
+    const showFirst = await Chat.findOne(
+       {"users.userId":userId,"users.friendId":otherId})
+ 
+    if (showFirst) {
+      const user = await User.findOne( { _id: userId }).lean()
+    return  res.status(200).json({ msg: "youother msg ", user, chatId:showFirst });
+    }
+    // 2 - if there is no old msg between them 
     const chat = new Chat({
-      users: { userId, otherId },
+      users: { userId, friendId:otherId },
     });
     let newChat = await chat.save();
     const user = await User.findByIdAndUpdate(
@@ -173,30 +191,30 @@ exports.acceptNewFriend = async (req, res, next) => {
     // THE FIRST USER
     const user = await User.findByIdAndUpdate(
       { _id: userId },
-      { $push: { newFriendsTest: { friendId, chatId: newChat } } },
+      { $push: 
+        { newFriendsTest: { friendId, chatId: newChat },
+         friendsList:friendId} },
       { new: true }
     );
-
+   
     const user2 = await User.findByIdAndUpdate(
       { _id: userId },
-      { $pull: { friendsRequests: friendId } }
+      { $pull: { friendsRequests: friendId ,newFriendsRequests:friendId} }
     );
 // the other user
     const friend3 = await User.findByIdAndUpdate(
       { _id: friendId },
-      { $pull: { friendsRequests: userId } },
+      { $pull: { friendsRequests: userId,newFriendsRequests:userId } ,},
       { new: true }
     );
 
     const friend = await User.findByIdAndUpdate(
       { _id: friendId },
-      { $push: { newFriendsTest: { friendId: userId, chatId: newChat } } }
+      { $push: { newFriendsTest: { friendId: userId, chatId: newChat }, friendsList:userId} }
     );
-    
-  //  return res.status(200).json({user,friend,msg:'you have added a new post'})
   
    res.status(200).json({ msg: "you have added new friend", user, friend });
-    // }
+   
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -206,10 +224,6 @@ exports.friendRequestnotifications = async (req, res, next) => {
   try {
     const user = await User.findOne({ _id: friendId });
     const date = Date.now()
-    // const ye = new Intl.DateTimeFormat('en', { yearx : 'numeric' }).format(d);
-    // const mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
-    // const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
-    //  let theDate = `${da}-${mo}-${ye}`
     const h = { friendId:userId, img, name, date ,msg};
     user.friendsNotifications.push(h);
     await user.save();
@@ -220,29 +234,32 @@ exports.friendRequestnotifications = async (req, res, next) => {
 };
 exports.pushAllNotifications = async (req, res, next) => {
   const { userId, friendId, name, msg, img,action,postId } = req.body;
-  try {
-    const user = await User.findOne({ _id: friendId });
-    const h = {
-       friendId, 
-       userId,
-        img,
-        action,
-        name, 
-        date:Date.now(),
-        msg,
-        postId };
-    user.AllNotifications.unshift(h);
-    await user.save();
-    res.status(200).json({ user });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({ error });
+  if (userId ==friendId) {
+    console.log('the same one ');
+    
+  }else{
+    try {
+      const user = await User.findOne({ _id: friendId });
+      const h = {
+         friendId, 
+         userId,
+          img,
+          action,
+          name, 
+          date:Date.now(),
+          msg,
+          postId };
+      user.AllNotifications.unshift(h);
+      await user.save();
+      res.status(200).json({ user });
+    } catch (error) {
+      res.status(400).json({ error });
+    }
   }
 };
 exports.rejectNewFriend = async (req, res, next) => {
   try {
     const { userId, friendId } = req.body;
-
     const user2 = await User.findByIdAndUpdate(
       { _id: userId },
       { $pull: { friendsRequests: friendId } }
@@ -264,7 +281,7 @@ exports.addFriendRequest = async (req, res, next) => {
     // 1-get the friend data with id and add id for the user to it 
     const friend = await User.findOneAndUpdate(
       { _id: friendId },
-      { $push: { friendsRequests: userId } },
+      { $push: { friendsRequests: userId ,newFriendsRequests:userId} },
       { new: true }
     );
     // 1-get the another user data with id and add id for the friend to it 
@@ -273,7 +290,6 @@ exports.addFriendRequest = async (req, res, next) => {
       { $push: { friendsRequests: friendId } },
       { new: true }
     );
-    //    await  Promise.all([friend, user])
     res.status(200).json({ user, friend });
   } catch (error) {
     res.status(404).json({ error });
@@ -282,20 +298,18 @@ exports.addFriendRequest = async (req, res, next) => {
 exports.getFriends = async (req, res, next) => {
   const userId = req.params.userId;
   try {
-    const friends = await User.findOne({ _id: userId }).lean()
-    .populate({
-        path:'newFriendsTest.friendId',
+    const friends = await User.findOne({ _id: userId }).lean().populate({
+        path:'friendsList',
         select:'name age img ',
         model:'User',
-
-    }).exec();
-   
+    }).exec()
+  
     res
       .status(200)
       .json({
         successful: true,
         msg: "you have friends",
-        friends:friends.newFriendsTest
+        friends:friends.friendsList
       });
   } catch (error) {
     res.status(400).json({ error, successful: false });
@@ -344,15 +358,9 @@ exports.friendsRequests = async (req, res, next) => {
   const userId = req.params.userId;
   try {
     const friends = await User.findOne({ _id: userId }).lean()
-      .populate("friendsRequests")
-      .exec();
-    const filterFriends = friends.friendsRequests.map((p) => {
-      return {
-        name: p.name,
-        _id: p._id,
-        img: p.img,
-      };
-    });
+      .populate(  { path: 'newFriendsRequests', select: 'name _id img' } )
+      .exec()
+    const filterFriends = friends.newFriendsRequests
 
     res
       .status(200)

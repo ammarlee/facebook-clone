@@ -1,5 +1,7 @@
 <template>
   <v-app  style="overflow: hidden;" >
+    <app-left-drawer></app-left-drawer>
+    <app-right-drawer></app-right-drawer>
   <router-view name="header">
   </router-view>
     <v-main >
@@ -70,7 +72,7 @@ display: none;
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {}
 
-/* Medium devices (landscape tablets, 768px and up) */
+/* Medium devices (landscape tablets, 768px and up) */ 
 @media only screen and (min-width: 768px) {}
 
 /* Large devices (laptops/desktops, 992px and up) */

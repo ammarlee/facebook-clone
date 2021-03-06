@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import socktConnect from "socket.io-client";
+
 import message from './massageTest'
 export default {
   name: "message",
@@ -45,7 +45,7 @@ export default {
   },
 
   mounted() {
-    this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+    this.socket = this.$soketio;
     if (this.$store.getters.getUser) {
       this.socket.emit("goOnlineTwo", this.$store.getters.getUser);
     }

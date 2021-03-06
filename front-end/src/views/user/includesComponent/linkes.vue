@@ -21,10 +21,26 @@
                     <template>
                       <v-list-item>
                         <v-list-item-avatar>
-                          <v-icon large>mdi-account-group-outline</v-icon>
+                          <v-icon large>mdi-account-clock-outline</v-icon>
                         </v-list-item-avatar>
                         <v-list-item-content>
                           <v-list-item-title>requests</v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                  </v-list>
+                </router-link>
+
+
+          <router-link :to="'/profile/'+currentUser._id +'/profileFriends'" tag="div" style="cursor: pointer">
+                  <v-list class="text-capitalize font-weight-bold">
+                    <template>
+                      <v-list-item>
+                        <v-list-item-avatar>
+                          <v-icon large>mdi-account-group-outline</v-icon>
+                        </v-list-item-avatar>
+                        <v-list-item-content>
+                          <v-list-item-title>friends</v-list-item-title>
                         </v-list-item-content>
                       </v-list-item>
                     </template>

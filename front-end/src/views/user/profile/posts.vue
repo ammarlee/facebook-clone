@@ -15,6 +15,7 @@
                 v-for="(post,key) in posts"
                 :id="'div'+post._id"
                 :post="post"
+                 heights="270"
                 :key="key"
               >
               <div slot="options">

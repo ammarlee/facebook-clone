@@ -1,8 +1,7 @@
 const express = require("express")
 const router = express.Router()
-const path = require("path")
-const UserControlles = require(path.join(__dirname,'../controlles/user/user'))
-const Multer=require(path.join(__dirname,'../controlles/multer'))
+const UserControlles = require('../controlles/user/user')
+const Multer=require('../controlles/multer')
 
 router.post('/profile/:friendId',UserControlles.profile)
 router.get('/getSpecificUser/:userId',UserControlles.getSpecificUser)

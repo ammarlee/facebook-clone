@@ -6,6 +6,7 @@
         :loading="isLoading"
         :search-input.sync="search"
         clearable
+        light
         hide-details
         hide-selected
         item-text="description"

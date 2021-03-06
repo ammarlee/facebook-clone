@@ -3,18 +3,18 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   name: {
     type: String,
+    unique:true,
     required: true,
-    unique: false,
   },
   email: {
     type: String,
+    unique:true,
     required: true,
-    unique: false,
   },
   img: {
     type: String,
     default:
-      "http://res.cloudinary.com/ammarleejot/image/upload/v1609954985/j7v7ezyvnax9fuokrryb.jpg",
+      "https://res.cloudinary.com/ammarleejot/image/upload/v1609954985/j7v7ezyvnax9fuokrryb.jpg",
   },
   pics: {
     type: Array,
@@ -79,6 +79,18 @@ const userSchema = new Schema({
     ref: "Chat",
   },
   friendsRequests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  newFriendsRequests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  friendsList:[
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

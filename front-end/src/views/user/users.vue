@@ -64,8 +64,6 @@
 
 <script>
 import Functions from "../../../server/api";
-import socktConnect from "socket.io-client";
-
 export default {
   data() {
     return {
@@ -106,7 +104,7 @@ export default {
       const but = document.getElementById(friendId);
       try {
 
-        const res = await Functions.sendFriendRequest({
+        await Functions.sendFriendRequest({
           userId: this.$store.getters.getUser._id,
           friendId: friendId,
         });
@@ -114,7 +112,7 @@ export default {
         but.classList.add("yellow")
         but.innerText = "pending"
         but.disabled = 'disabled'
-        let u = this.$store.getters.getUser;
+        let u = this.currentUser;
         const noti = {
           userId: u._id,
           name: u.name,
@@ -125,7 +123,7 @@ export default {
         };
         await Functions.friendRequestNotifications(noti)
         this.socket.emit("sendFriendRequest", noti);
-        console.log(res); 
+      
       } catch (error) {
         console.log(error);
       }
@@ -136,7 +134,7 @@ export default {
     try {
       this.overlay = true
       let currentuser = this.$store.getters.getUser._id
-      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+      this.socket = this.$soketio;
       const res = await Functions.getusers();
       const u = await Functions.getCurrentUser(currentuser)
       this.user=u.data.user

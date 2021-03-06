@@ -1,6 +1,8 @@
 <template>
-  <v-app>
-    <v-overlay :value="overlay">
+<div>
+
+  <v-app >
+    <v-overlay :value="overlay" v-if="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
     <v-container>
@@ -8,23 +10,23 @@
         <div class="nav-bar">
           <h1 class="mb-5">
             friends
-            <span class="text--h5">({{friendsList.length}})</span>
+            <span class="text--h5" v-if="friendsList">({{friendsList.length}})</span>
           </h1>
         </div>
-        <div v-if="friendsList.length >0" class="friends">
+        <div  class="friends">
           <v-row>
-            <v-col cols="12" sm="5" md="3" v-for="friend in friendsList" :key="friend.id">
+            <v-col cols="12" sm="5" md="3" v-for="friend in friendsList" :key="friend._id">
               <div
                 class="d-flex main-div align-self-end"
-                @click="navegatetoprofile(friend.friendId._id)"
+                @click="navegatetoprofile(friend._id)"
               >
                 <div class="friend-img">
                   <v-avatar>
-                    <v-img :src="friend.friendId.img"></v-img>
+                    <v-img :src="friend.img"></v-img>
                   </v-avatar>
                 </div>
                 <div class="img-details ml-2">
-                  <h4>{{friend.friendId.name}}</h4>
+                  <h4>{{friend.name}}</h4>
                 </div>
                 <div>
                   <v-menu transition="slide-y-transition" open-on-hover offset-y bottom>
@@ -42,7 +44,7 @@
                       <div>
                         <v-list-item>
                           <v-list-item-title>
-                            <v-btn text @click="deleteFriend(friend.friendId._id)">
+                            <v-btn text @click="deleteFriend(friend._id)">
                               <v-icon>mdi-facebook</v-icon>delte friend
                             </v-btn>
                           </v-list-item-title>
@@ -55,12 +57,15 @@
             </v-col>
           </v-row>
         </div>
-        <div v-else>
-          <v-alert color="red" outlined type="info">there is no friends avalible</v-alert>
+        <div v-if="friendsList" >
+          <v-alert v-if="friendsList.length<=0" color="red" outlined type="info">there is no friends avalible</v-alert>
         </div>
       </div>
     </v-container>
   </v-app>
+ 
+</div>
+
 </template>
 
 <script>
@@ -68,7 +73,7 @@ import Functions from "../../../../server/api";
 export default {
   data() {
     return {
-      friendsList: "",
+      friendsList: null,
       userId: this.$store.getters.getUser._id,
     };
   },
@@ -95,7 +100,10 @@ export default {
         };
         this.overlay = true;
         let res = await Functions.deleteFriend(deleteData);
-        console.log(res.userfinsih);
+        console.log(res);
+        this.friendsList=this.friendsList.filter(i=>{
+          return i._id !==deleteData.friendId;
+        })
         this.overlay = false;
       } catch (error) {
         this.overlay = false;

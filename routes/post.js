@@ -1,10 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const path = require('path')
-const User =require(path.join(__dirname,'../models/user'))
+const User =require('../models/user')
 var jwt = require('jsonwebtoken')
-const Multer=require(path.join(__dirname,'../controlles/multer'))
-const postController = require(path.join(__dirname,'../controlles/post/post'))
+const Multer=require('../controlles/multer')
+const postController = require('../controlles/post/post')
 
 const protect= async(req,res,next)=>{
   let token
@@ -39,7 +38,5 @@ router.post('/edit-comment/:commentId',postController.editComment)
 router.post('/delete-comment/:commentId',postController.deleteComment)
 router.post('/save-post',postController.savePost)
 router.get('/saved-posts/:userId',postController.getSavedposts)
-
-
-
+router.post('/zremoveSaved',postController.removePostFromFavourite)
 module.exports = router

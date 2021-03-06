@@ -1,15 +1,17 @@
 <template>
   <!-- for mobile  -->
   <v-row v-if="getUser">
+    <!-- here will remove the home and use slot to add it -->
     <v-col cols="2">
       <router-link to="/" tag="span" exact>
         <v-btn small icon >
-          <v-icon  class="white--text">mdi-home-outline</v-icon>
+          <v-icon  large class="white--text">mdi-home-outline</v-icon>
         </v-btn>
       </router-link>
     </v-col>
     <v-col cols="3">
-      <v-badge color="green" class="mr-3" overlap bordered :content="allMsgs.length">
+      <!-- 1 for notifications -->
+      <v-badge  color="green" class="mr-3" overlap bordered :content="allNotifications.length">
         <v-menu
           v-if="getUser"
           bottom
@@ -61,9 +63,9 @@
         </v-menu>
       </v-badge>
     </v-col>
-    <!-- menu for messg -->
+    <!-- 2 menu for messg -->
     <v-col cols="3">
-      <v-badge color="pink" overlap class="mr-3" bordered :content="allNotifications.length">
+      <v-badge  color="pink" overlap class="mr-3" bordered :content="allMsgs.length">
         <v-menu v-if="getUser" bottom min-width="200px" rounded offset-y>
           <template v-slot:activator="{ on }">
             <v-btn icon small class="mt-1" v-on="on">
@@ -109,7 +111,7 @@
       </v-badge>
     </v-col>
     <!--  end messge -->
-    <!-- friendRequest -->
+    <!-- 3 friendRequest -->
     <v-col cols="2">
       <v-badge color="green" class="mr-3" overlap bordered :content="notifications.length">
         <v-menu v-if="getUser" bottom min-width="200px" rounded offset-y>
@@ -158,9 +160,10 @@
       </v-badge>
     </v-col >
     <v-col cols="2">
+      <!-- WEILL REMOVE IT AND USE SLOT INSTEAD  -->
      <router-link :to="'/profile/'+getUser._id" tag="span" exact>
         <v-btn icon small>
-          <v-icon class="white--text">mdi-account-circle-outline</v-icon>
+          <v-icon large class="white--text">mdi-account-circle-outline</v-icon>
         </v-btn>
       </router-link>
     </v-col>
@@ -194,14 +197,9 @@ export default {
       profileNavigate() {
       this.$router.push("/profile/" + this.getUser._id);
     },
-    navegateToProfile(id) {
-      if (this.$route.name === "Home") {
-        this.$router.push("/FriendProfile/" + id);
-      } else {
-        this.$router.push("/").then(() => {
-          this.$router.push("/FriendProfile/" + id);
-        });
-      }
+    navegateToProfile() {
+        this.$router.push("/friends-request/");
+
     },
   },
   computed: {

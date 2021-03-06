@@ -2,8 +2,11 @@
     <div v-if="user">
     <template>
       <div>
+         <router-link to="/login" tag="div"  class="mx-auto text-center ">
+         <v-icon  style="cursor: pointer;font-size: 68px;" >mdi-facebook</v-icon>
+        </router-link>
         <v-card
-    class="mx-auto mt-15"
+    class="mx-auto mt-3"
     style="max-width: 500px;"
   >
     
@@ -28,7 +31,7 @@
       type="success"
       class="text-capitalize mx-auto"
      style="max-width: 500px;" >
-       {{msg}}
+       {{msg}} 
       </v-alert>
      <v-alert v-if="errors"
       dense
@@ -95,6 +98,13 @@
       </div>
     </template>>
     </div>
+    <div v-else  class="text-center mt-16 ">
+      <h2 class="text-capitalize pink--text mb-3">404 page Not found go to home page </h2>
+      <v-btn icon to="/login" >
+      <v-icon large>mdi-home</v-icon>
+
+      </v-btn>
+    </div>
 </template>
 
 <script>
@@ -126,10 +136,15 @@ import Functions from "../../../server/api"
       methods: {
       async  changePw(){
         try {
-          const res = await Functions.resetAfterForget(
+          this.loading=true
+          const res = await Functions.resetPassword(
             {user:this.user,token:this.token,password:this.password,secPassword:this.secPassword})
+           
           this.msg = res.data.msg
+          this.loading=false
+          setTimeout( () => this.$router.push({ path: '/login'}), 5000);
         } catch (error) {
+          this.loading=false
           this.errors=error.response.data.err
           
         }
@@ -147,10 +162,11 @@ import Functions from "../../../server/api"
       },
       async mounted() {
         try {
-          const res = await Functions.getresetToken(this.$route.params.token)
+          const res = await Functions.getuserToken(this.$route.params.token)
           this.user = res.data.user
           
         } catch (error) {
+          console.log(error.response.data);
           this.errors = error
           
         }

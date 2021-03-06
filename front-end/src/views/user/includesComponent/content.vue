@@ -1,8 +1,7 @@
 <template>
   <v-col v-if="currentUser" cols="12" sm="6">
-    <!-- create posts component -->
     <app-new-post></app-new-post>
-  <!-- print all posts in website -->
+
     <app-all-posts v-for="(post,key) in posts" :post="post" heights="270" :key="key" :id="'div'+post._id">
       <div slot="options">
         <app-options :post="post"></app-options>
@@ -29,8 +28,6 @@ export default {
   data() {
     return {
       dialog: false,
-       videoId: 'videoId',
-
       rout: this.$route.name,
       showPostcomments: false,
       items: null,

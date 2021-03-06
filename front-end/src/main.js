@@ -11,8 +11,18 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import Functions from "../server/api";
 import VueScreen from 'vue-screen';
 import links from './views/user/includesComponent/linkes.vue'
+import leftDrawer from './views/user/includesComponent/leftDrawer.vue'
+import rightDrawer from './views/user/includesComponent/rightDrawer.vue'
+// vue photos
+import CoolLightBox from 'vue-cool-lightbox'
+import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
+Vue.use(CoolLightBox)
 Vue.use(VueScreen);
+
 Vue.component('app-links', links)
+Vue.component('app-left-drawer', leftDrawer)
+Vue.component('app-right-drawer', rightDrawer)
+Vue.prototype.$soketio = socktConnect("https://facebook-clones.herokuapp.com/");
 Vue.mixin({
   data() {
     return {
@@ -124,67 +134,86 @@ new Vue({
       this.$store.dispatch("getPosts", posts.data.posts);
       this.$store.commit("setUsers", users.data.users);
       const socket = socktConnect("https://facebook-clones.herokuapp.com/");
-      let userToken = localStorage.getItem("userToken");
-      if (userToken) {
-        if (this.user) {
+        this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
 
-          this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
-          // join the room
-          this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser
-          );
-          //  socket for likes
-          this.socket.on("newLikeNotification", (data) => {
-            this.addTheNotification(data);
-            this.playSound(
-              "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-            );
-          });
-          //   socket for new comments
-          this.socket.on("newCommentNotification", (data) => {
-            this.addTheNotification(data);
-            this.playSound(
-              "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-            );
-          });
+      // let userToken = localStorage.getItem("userToken");
 
-          //  get notification for friends request
-        
-        } else {
-          let userToken = localStorage.getItem("userToken");
-          if (userToken) {
-            Functions.getuserWithToken(userToken).then((currentUser) => {
-              this.$store.dispatch("setUser", currentUser.data.user);
-              this.$store.dispatch("setAuth", currentUser.data.authanticated);
-              this.$store.commit(
-                "setNotifications",
-                currentUser.data.user.friendsNotifications
-              );
-              this.$store.commit(
-                "setAllNotificationsAfterLogin",
-                currentUser.data.user.AllNotifications
-              );
-              this.$store.commit(
-                "setUserMessages",
-                currentUser.data.user.messageNotifications
-              );
-            });
-          } else {
-            this.$router.push("/login");
-          }
-        }
-      }
-      
+      // if (this.user) {
+      //   this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+      //   // join the room
+      //   this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser
+      //   );
+      //   //  socket for likes
+      //   this.socket.on("newLikeNotification", (data) => {
+      //     if (this.user._id.toString()  ==data.userId.toString() ) {
+      //       console.log('the same user');
+            
+      //     }else{
+      //     this.addTheNotification(data);
 
+      //     this.playSound(
+      //       "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
+      //     );}
+      //   });
+      //   //   socket for new comments
+      //   this.socket.on("newCommentNotification", (data) => {
+       
+      //     if (this.user._id.toString() ==data.userId.toString() ) {
+      //       console.log('the same user');
+            
+      //     }else{
+      //     this.addTheNotification(data);
+      //     this.playSound(
+      //       "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
+      //     );}
+      //   });
+
+      // }else{
+      //   if(userToken=="null"){
+      //     this.$router.push("/login");
+
+      //   }else{
+      //     Functions.getuserWithToken(userToken).then((currentUser) => {
+      //       if(currentUser.data.user==null){
+      //      this.$router.push("/login");
+      //       }else{
+      //         this.$store.dispatch("setUser", currentUser.data.user);
+      //         this.$store.dispatch("setAuth", currentUser.data.authanticated);
+      //         this.$store.commit(
+      //           "setNotifications",
+      //           currentUser.data.user.friendsNotifications
+      //         );
+      //         this.$store.commit(
+      //           "setAllNotificationsAfterLogin",
+      //           currentUser.data.user.AllNotifications
+      //         );
+      //         this.$store.commit(
+      //           "setUserMessages",
+      //           currentUser.data.user.messageNotifications
+      //         );
+
+      //       }
+      //     });
+
+      //   }
+
+      // }
       socket.on("post", (data) => {
         if (data.action == "create") {
           this.$store.dispatch("pushNewPost", data);
         } else if (data.action == "delete") {
           this.$store.dispatch("removePost", data.post._id);
         } else if (data.action == "edit") {
-          console.log('edit the post ');
           this.$store.dispatch("editPost", data.post);
         } else if (data.action == "comment") {
           this.$store.dispatch("pushNewComment", data.comment);
+        } else if (data.action == "deleteComment") {
+          this.$store.dispatch("deleteComment", {commentId:data.commentId,postId:data.postId});
+        } else if (data.action == "editComment") {
+          this.$store.dispatch("editComment", data);
+        }
+        else if (data.action == "signupNewUser") {
+          this.$store.dispatch("setNewUser", data.user);
         }
       });
       // this for get online users when they are online
@@ -210,7 +239,7 @@ new Vue({
  
       })
     } catch (ee) {
-      console.log(ee);
+      this.errors = ee
     }
   },
   methods:{

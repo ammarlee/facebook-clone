@@ -13,6 +13,16 @@ import one from "./one";
 
 export default {
   name: "three",
+   
+  data(){
+    return{
+       items: [
+        'https://cdn.vuetifyjs.com/images/cards/cooking.png',
+        'https://cdn.vuetifyjs.com/images/cards/cooking.png',
+      ],
+      index: null
+    }
+  },
   components: {
     "app-one": one,
   },

@@ -22,6 +22,7 @@
               <v-row>
                 <v-col cols="12">
                   <div id="actionDiv">
+                    <!-- 1- if the user in friend list -->
                     <div v-if="infriendsList">
                       <v-btn large icon outlined class="success mr-2">
                         <v-icon class="mr-1 white--text">mdi-account-star-outline</v-icon>
@@ -30,16 +31,25 @@
                         <v-icon class="mr-1" small>mdi-account-cancel-outline</v-icon>unfriend
                       </v-btn>
                     </div>
-                    <div v-else-if="inrequestFriends">
+                    <div v-else-if="newFriendsRequests">
                       <v-btn
                         outlined
-                        class="yellow white--text"
+                        class="yellow white--text mr-1"
                         v-if="inrequestFriends"
                         @click="cancelFriendRequest() "
                       >
-                        <v-icon class="mr-1" small>mdi-account-alert-outline</v-icon>pending
+                        <v-icon class="mr-1" small>mdi-account-alert-outline</v-icon>cancle
+                      </v-btn>
+                      <v-btn
+                        outlined
+                        class="primary white--text"
+                        v-if="inrequestFriends"
+                        @click="acceptFriend() "
+                      >
+                        <v-icon class="mr-1" small>mdi-account-alert-outline</v-icon>accept
                       </v-btn>
                     </div>
+
                     <div v-else>
                       <v-btn outlined class="success white--text" @click="addFriend()">
                         <v-icon small>mdi-account-arrow-right-outline</v-icon>add friend
@@ -73,6 +83,7 @@
 <script>
 import Functions from "../../../../server/api";
 import tabsProfileVue from "../includesComponent/tabsProfile.vue";
+
 export default {
   name: "friendProfile",
   components: {
@@ -96,6 +107,7 @@ export default {
       user: "",
       infriendsList: null,
       inrequestFriends: null,
+      newFriendsRequests: null,
       id: this.$route.params.id,
       data: {
         userId: this.$store.getters.getUser._id,
@@ -104,26 +116,42 @@ export default {
     };
   },
   async mounted() {
+    this.socket = this.$soketio;
     try {
       let alldata = {
         friendId: this.$route.params.id,
         userId: this.$store.getters.getUser,
       };
       const res = await Functions.getYourProfile(alldata);
-      console.log(res);
       this.user = res.data.user;
-      this.infriendsList = res.data.infriendsList;
-      this.inrequestFriends = res.data.inRequestFriends;
+      let statues =res.data
+      this.buttonsStatus(statues.infriendsList,statues.inRequestFriends,statues.newFriendsRequests)
     } catch (error) {
-      console.log(error);
+      this.errors = error;
     }
   },
   methods: {
+    buttonsStatus(a,b,c){
+      this.infriendsList = a;
+      this.inrequestFriends = b;
+      this.newFriendsRequests = c;
+    },
     async addFriend() {
       try {
         await Functions.sendFriendRequest(this.data);
-        this.infriendsList = false;
-        this.inrequestFriends = true;
+        this.buttonsStatus('false','true','false')
+        
+        let u = this.currentUser;
+        const noti = {
+          userId: u._id,
+          name: u.name,
+          img: u.img,
+          friendId: this.data.friendId,
+          action: "newNotification",
+          msg: " have sent you friend request ",
+        };
+        await Functions.friendRequestNotifications(noti);
+        this.socket.emit("sendFriendRequest", noti);
       } catch (error) {
         this.errors = error;
       }
@@ -150,6 +178,35 @@ export default {
         console.log(error);
       }
     },
+    async acceptFriend() {
+      try {
+        let u = this.currentUser;
+        let data = {
+          userId: u._id,
+          friendId: this.$route.params.id,
+        };
+        this.overlay = true;
+        let res = await Functions.acceptNewFriend(data);
+        if (res.status == 200) {
+          this.buttonsStatus("true","false","false")
+          const noti = {
+            userId: u._id,
+            name: u.name,
+            img: u.img,
+            friendId: data.friendId,
+            action: "newNotification",
+            msg: " have acccepted  your friend request ",
+          };
+          await Functions.friendRequestNotifications(noti);
+          this.socket.emit("sendFriendRequest", noti);
+        }
+
+        this.overlay = false;
+      } catch (error) {
+        this.overlay = false;
+        this.errors = error;
+      }
+    },
     sendMsg() {
       if (this.infriendsList) {
         let u = this.$store.getters.getUser;
@@ -159,6 +216,8 @@ export default {
         let chatId = s[0].chatId;
         this.$router.push("/massageTest/" + chatId);
       } else {
+        console.log("not in friend list ");
+
         let thedata = {
           userId: this.$store.getters.getUser._id,
           otherId: this.id,
@@ -182,12 +241,12 @@ export default {
   text-transform: capitalize;
   display: inline-block;
 }
- #theCoverImg {
-      min-height: 409px;
-      max-height: 410px;
-      background-size: cover;
-      background-position: center;
-    }
+#theCoverImg {
+  min-height: 409px;
+  max-height: 410px;
+  background-size: cover;
+  background-position: center;
+}
 #cover-img {
   position: relative;
 

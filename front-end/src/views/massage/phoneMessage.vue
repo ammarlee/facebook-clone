@@ -32,11 +32,11 @@
 </template>
 
 <script>
-import socktConnect from "socket.io-client";
+
 export default {
   name: "message",
   mounted() {
-    this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+    this.socket = this.$soketio;
     if (this.$store.getters.getUser) {
       this.socket.emit("goOnlineTwo", this.$store.getters.getUser);
     }
@@ -76,12 +76,6 @@ export default {
   computed: {
     onlineUsers() {
       return this.$store.getters.onlineUsers;
-    },
-  },
-  watch: {
-    recent(val) {
-      console.log("changed");
-      console.log(val);
     },
   },
 };

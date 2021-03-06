@@ -1,15 +1,16 @@
 const path = require("path");
 const fs = require("fs");
-const Post = require(path.join(__dirname,"../../models/post"));
-const Comment = require(path.join(__dirname,"../../models/comment"));
-const User = require(path.join(__dirname,"../../models/user"));
-const clody = require(path.join(__dirname,"../cloud"));
-const io = require(path.join(__dirname,"../../socket"));
+const Post = require("../../models/post");
+const Comment = require("../../models/comment");
+const User = require("../../models/user");
+const clody = require("../cloud");
+const io = require("../../socket");
 const algoliasearch = require("algoliasearch");
 const client = algoliasearch("5AX3QTWUTZ", "51ba31f56313488518c91d7571cddcde");
 const index = client.initIndex("facebook");
 const Moment = require("moment");
 // ______________________________________
+
 exports.creatPost = async (req, res, next) => {
   let data = JSON.parse(req.body.data);
   const userId = data.userId;
@@ -47,7 +48,6 @@ exports.creatPost = async (req, res, next) => {
     const images = urls.map((p) => {
       return p.url;
     });
-
     const post = new Post({ description, userId, img: images, date });
     await post.save();
     images.forEach((i) => {
@@ -161,6 +161,7 @@ exports.createComment = async (req, res, next) => {
   const date = Moment().format("MMMM Do YYYY, h:mm:ss a");
   try {
     const comment = await Post.findOne({ _id: postId });
+
     comment.comments.push({
       userId: user._id,
       date,
@@ -191,7 +192,13 @@ exports.addLike = async (req, res, next) => {
   const postId = req.body.postId;
   const date = Moment().format("MMMM Do YYYY, h:mm:ss a");
   try {
-    const post = await Post.findOne({ _id: postId });
+    const post = await Post.findOne({ _id: postId })
+    let getIndex = post.reacts.findIndex(i=>{
+      return i.userId.toString() ==userId.toString();
+    })
+    if (getIndex >=0) {
+      return 
+    }else{
     post.reacts.push({ userId: userId, date });
     await post.save();
     const s = post.reacts.length - 1;
@@ -201,9 +208,16 @@ exports.addLike = async (req, res, next) => {
       msg: "new like to the post ",
     });
 
-    res
-      .status(200)
-      .json({ success: true, msg: "you have add a comment", post });
+  }
+  const p = await Post.findOne({ _id: postId }).lean().populate({ 
+    path: 'reacts.userId',
+    model: 'User',
+    select:'name _id email img '
+  }).exec();
+  res
+    .status(200)
+    .json({ success: true, msg: "you have add a like", post:p });
+    
   } catch (error) {
     console.log(error);
     res.status(400).json({ error, successful: false });
@@ -219,7 +233,12 @@ exports.removeLike = async (req, res, next) => {
     });
     post.reacts = s;
     await post.save();
-    res.status(200).json({ success: true, msg: "you unlicke the post ", post });
+    const p = await Post.findOne({ _id: postId }).lean().populate({ 
+      path: 'reacts.userId',
+      model: 'User',
+      select:'name _id email img '
+    }).exec();
+    res.status(200).json({ success: true, msg: "you unlicke the post ", post:p });
   } catch (error) {
     console.log(error);
     res.status(400).json({ error, successful: false });
@@ -243,19 +262,20 @@ exports.getComments = async (req, res, next) => {
   }
 };
 exports.deleteComment = async (req, res, next) => {
-  const userId = req.body.userId;
+  const postId = req.body.postId;
   const commentId = req.params.commentId;
   try {
-    const comment = await Comment.findOneAndRemove({ _id: commentId, userId });
+    const comment = await Post.findByIdAndUpdate(
+      { _id: postId},{ $pull: { comments: {_id:commentId}} });
     io.getIO().emit("post", {
       action: "deleteComment",
-      comment,
-      msg: "new post has been added ",
+      postId,commentId,
+      msg: "delete comment on post ",
     });
 
     res
       .status(200)
-      .json({ success: true, comment, msg: "you have delete comment" });
+      .json({ success: true, postId,commentId, msg: "you have delete comment" });
   } catch (error) {
     console.log(error);
     res.status(400).json({
@@ -265,15 +285,28 @@ exports.deleteComment = async (req, res, next) => {
   }
 };
 exports.editComment = async (req, res, next) => {
-  const userId = req.body.userId;
   const commentId = req.params.commentId;
-  const newcomment = req.body.description;
+  const newComment = req.body.newComment;
+  const postId = req.body.postId;
   try {
-    const comment = await Comment.findOneAndUpdate(
-      { _id: commentId, userId: userId },
-      { description: newcomment },
+    const comment = await Post.findOneAndUpdate(
+      { _id: postId,'comments':{
+        $elemMatch: {
+          '_id': commentId
+        },
+
+      }},
+      {$set: {
+        'comments.$.description': newComment
+      },
+    },
       { new: true }
     );
+    io.getIO().emit("post", {
+      action: "editComment",
+      commentId,newComment,postId,
+      msg: "delete comment on post ",
+    });
     res
       .status(200)
       .json({ success: true, comment, msg: "you have edited your comment" });
@@ -297,6 +330,25 @@ exports.savePost = async (req, res, next) => {
       .status(200)
       .json({ success: true, user,msg: "you have saved the post" });
   } catch (error) {
+    res.status(400).json({ error, successful: false });
+  }
+};
+exports.removePostFromFavourite = async (req, res, next) => {
+  const postId = req.body.postId;
+  const userId = req.body.userId;
+  console.log(req.body);
+  try {
+    const user = await User.findByIdAndUpdate(
+      { _id: userId },
+      { $pull: { savedPosts: { postId:postId } } },
+      { new: true }
+    );
+   
+    res
+      .status(200)
+      .json({ success: true, user:user.savedPosts,msg: "you have remove post from favourite " });
+  } catch (error) {
+    console.log(error);
     res.status(400).json({ error, successful: false });
   }
 };

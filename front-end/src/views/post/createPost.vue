@@ -2,7 +2,7 @@
   <div class="rounded-lg mb-10" id="mainDiv">
     <v-list one-line class="rounded-lg">
       <v-list-item>
-        <v-list-item-avatar style="cursor: pointer" @click="navigateToProfile"> 
+        <v-list-item-avatar style="cursor: pointer" @click="navigateToProfile">
           <v-img :src="user.img"></v-img>
         </v-list-item-avatar>
         <v-overlay :value="overlay" v-if="overlay">
@@ -10,18 +10,17 @@
         </v-overlay>
         <v-dialog e-else v-model="dialog" :max-width="600 " class="ma-0">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="pink lighten-2"
-              dark
-              id="theBtn"
-              style="background: #dfdfdf!important; color: black;"
-              class="rounded-lg text-capitalize"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon class="pink--text">mdi-pencil</v-icon>
-              what is in yor mind {{user.name}}
-            </v-btn>
+            <div class="rounded-lg text-capitalize" style="width:100%" v-bind="attrs" v-on="on">
+              <v-text-field
+                solo
+                rows="1"
+                row-height="15"
+                prepend-inner-icon="mdi-pencil"
+                hide-details
+                readonly 
+                :label="'what is in yor mind '+user.name"
+              ></v-text-field>
+            </div>
           </template>
           <v-card>
             <v-card-title
@@ -80,15 +79,14 @@ export default {
     };
   },
   methods: {
-    clearInputs(){
+    clearInputs() {
       this.dialog = false;
       this.overlay = false;
-      this.pic = []
-      this.description = " "
+      this.pic = [];
+      this.description = " ";
     },
-    navigateToProfile(){
-      this.$router.push('/profile/'+this.user._id)
-
+    navigateToProfile() {
+      this.$router.push("/profile/" + this.user._id);
     },
     refs() {
       this.$refs.uploading.click();
@@ -108,10 +106,10 @@ export default {
       formData.append("data", JSON.stringify(postdata));
       try {
         this.dialog = false;
-        this.overlay = true
+        this.overlay = true;
         await Functions.createPost(formData);
-        this.clearInputs()
-        this.sweetAlert('success', "added new post ", "3000","bottom-end")
+        this.clearInputs();
+        this.sweetAlert("success", "added new post ", "3000", "bottom-end");
       } catch (error) {
         this.overlay = false;
         this.errors = error;
@@ -122,7 +120,6 @@ export default {
     user() {
       return this.$store.getters.getUser;
     },
-  
   },
 };
 </script>
@@ -148,7 +145,7 @@ export default {
     overflow: scroll;
   }
   #theBtn {
-    font-size: 1px;
+    font-size: 15px;
   }
 }
 </style>

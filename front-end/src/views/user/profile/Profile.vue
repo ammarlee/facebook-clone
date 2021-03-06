@@ -10,7 +10,7 @@
 
           <input type="file" ref="coverInput" @change="uploadCover" class="d-none" />
         </v-btn>
-        <v-btn class="red edit-btn" text @click.prevent="doit" v-if="showcoverbtn">update cover</v-btn>
+        <v-btn class="red edit-btn" small text @click.prevent="doit" v-if="showcoverbtn">update cover</v-btn>
         <div
           class="cover-img"
           id="theCoverImg"
@@ -37,7 +37,7 @@
       </div>
       <v-container class="pt-0">
         <div class="head">
-          <app-profile-tabs header='/profile/' :tabs="tabs"></app-profile-tabs>
+          <app-profile-tabs header='/profile/' :tabs="tabs" ></app-profile-tabs>
         
         </div>
         <router-view></router-view>
@@ -149,6 +149,7 @@ export default {
   mounted() {},
   computed: {
     user() {
+      console.log('computed work');
       return this.$store.getters.getUser;
     },
     user_id() {
@@ -176,13 +177,13 @@ export default {
         if (this.oldUserData.img == this.user.img) {
           this.oldUserData.img = null;
         }
-        this.overlay = true;
+        // this.overlay = true;
         const res = await Functions.editProfile(this.oldUserData);
         this.editDialog = false;
         this.$store.commit("updateUser", res.data);
-        this.overlay = false;
+        // this.overlay = false;
       } catch (error) {
-        this.overlay = false;
+        // this.overlay = false;
         this.errors = error;
       }
     },
@@ -197,14 +198,13 @@ export default {
           formData.append("files", this.userCover[i]);
         }
         this.overlay = true;
-
         let res = await Functions.editCover({
           userId: this.user._id,
           formData,
         });
         this.showcoverbtn = false;
-        console.log(res);
-        this.$store.commit("updateUser", res.data);
+        this.user.coverImg = res.data.newImage
+        this.$store.commit("updateUserCover", res.data);
         this.overlay = false;
       } catch (error) {
         this.overlay = false;
@@ -273,13 +273,17 @@ export default {
     }
   @media only screen and (max-width: 600px) {
     #profile-img {
-      bottom: 47%;
+      bottom: 26%;
       left: 29%;
     }
     #theCoverImg {
       max-height: 240px;
       min-height: 240px;
     }
+    #edit-btn,
+  .edit-btn {
+    bottom: 29%;
+  }
   }
 }
 </style>

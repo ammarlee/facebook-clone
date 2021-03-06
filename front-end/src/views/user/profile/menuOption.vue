@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--  menu for the (save-edit-delete-hide) -->
-    <v-menu transition="slide-y-transition" bottom>
+    <v-menu transition="slide-y-transition" bottom   :close-on-click="closeOnClick">
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           class="ml-auto font-weight-bold"
@@ -15,8 +15,8 @@
         <div v-if="items">
           <v-list-item>
             <v-list-item-title>
-              <v-btn text @click.stop="savePost(post)">
-               <v-icon>mdi-star</v-icon> save post
+             <v-btn text  @click.stop="savePost(post)">
+                <v-icon :class="{'pink--text':checking} ">mdi-star</v-icon>{{checking? 'saved':'save post'}} 
               </v-btn>
             </v-list-item-title>
           </v-list-item>
@@ -27,7 +27,7 @@
               <v-dialog v-model="dialog" width="700">
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn text v-bind="attrs" v-on="on" @click="editPost(post)">
-                    <v-icon>mdi-pencil</v-icon>edit post
+                    <v-icon class="success--text">mdi-pencil</v-icon>edit post
                   </v-btn>
                 </template>
                 <v-card>
@@ -89,7 +89,7 @@
           <v-list-item>
             <v-list-item-title>
               <v-btn text @click="deletePost(post)">
-                <v-icon>mdi-delete</v-icon>delete post
+                <v-icon class="red--text">mdi-delete</v-icon>delete post
               </v-btn>
             </v-list-item-title>
           </v-list-item>
@@ -98,9 +98,10 @@
         <div v-else>
           <v-list-item>
             <v-list-item-title>
-              <v-btn text @click.stop="savePost(post)">
-                <v-icon>mdi-star</v-icon> save post
+              <v-btn text  @click.stop="savePost(post)">
+                <v-icon :class="{'pink--text':checking} ">mdi-star</v-icon>{{checking? 'saved':'save post'}} 
               </v-btn>
+                
             </v-list-item-title>
           </v-list-item>
 
@@ -126,6 +127,7 @@ export default {
   data() {
     return {
       dialog: false,
+       closeOnClick: true,
       editDialog: false,
       errors: null,
       overlay: false,
@@ -145,13 +147,25 @@ export default {
     user_id() {
       return this.$route.params.id;
     },
+    checking(){
+      return this.user.savedPosts.some((p) => {
+        return p.postId == this.post._id;
+      });
+
+    }
+   
   },
 
   methods: {
     async savePost(post) {
       try {
-        const res = await Functions.savePost({post,userId:this.user._id})
-        console.log(res);
+        console.log(this.checking);
+        if (!this.checking) {
+          const res =await Functions.savePost({post,userId:this.user._id})
+           this.$store.commit('updateUser',res.data)
+        } else{
+          return
+        }
         
       } catch (error) {
         this.errors = error
@@ -164,15 +178,7 @@ export default {
     uploadFile(e) {
        this.dialogData.img = e.target.files;
     },
-
-    // uploadFile(e) {
-    //   const input = e.target.files;
-    //   var reader = new FileReader();
-    //   reader.readAsDataURL(input[0]);
-    //   reader.onload = () => {
-    //     this.dialogData.img.push(reader.result);
-    //   };
-    // },
+    
     async deletePost(post) {
       const postId = post._id;
       if (this.user._id === post.userId._id) {

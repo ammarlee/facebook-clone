@@ -1,6 +1,7 @@
 <template>
  <div>
    <app-user-pictures :userId="this.$route.params.id"></app-user-pictures>
+   
  </div>
 </template>
 

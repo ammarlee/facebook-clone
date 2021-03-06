@@ -31,6 +31,24 @@
         class="mx-auto"
       >
         <div class="demo-content">
+          <div>
+        <v-list three-line class=" d-flex justify-center ml-auto pt-0 pb-0">
+          
+            <div class="">
+            <v-list-item-avatar size="150"  class="ml-10">
+              <v-img :src="theAnotherUser2.img"></v-img>
+            </v-list-item-avatar>
+            <!-- <v-list-item-content class="pt-0 d-block"> -->
+              <v-list-item-subtitle class="text-h4 black--text text-center font-weight-bold text-capitalize">
+                {{theAnotherUser2.name}}
+              </v-list-item-subtitle>
+              <v-list-item-subtitle class="text-caption cyan--text text-center font-weight-bold text-capitalize">
+                {{theAnotherUser2.bio}}
+              </v-list-item-subtitle>
+            </div>
+     
+        </v-list>
+      </div>
           <div
             v-for="item in items"
             :key="item._id"
@@ -53,6 +71,7 @@
                 >
                   <v-textarea
                     auto-grow
+                    readonly 
                     :background-color="item.sender._id !==user._id? 'light-blue ':'white'"
                     :color="item.sender._id !==user._id? 'white ':'black'"
                     hide-details
@@ -78,7 +97,7 @@
 
 <script>
 import Functions from "../../../server/api";
-import socktConnect from "socket.io-client";
+
 import emojiPickerVue from '../post/emojiPicker.vue';
 
 export default {
@@ -159,7 +178,6 @@ export default {
     },
     showLastMsg() {
       let box = document.getElementById("theCard");
-      console.log(box);
       let sd = box.scrollHeight + 30;
       box.scrollTop = sd;
     },
@@ -176,24 +194,22 @@ export default {
   },
   async mounted() {
     try {
-      // this.overlay = true;
+      this.overlay = true;
       const res = await Functions.getMessage(this.chatId);
-      console.log(res);
       const addTOArr = Object.values(res.data.ChatDetails.users);
       this.items = res.data.chat;
       this.theAnotherUser = addTOArr.find((i) => {
         return i !== this.user._id;
       });
-      console.log(this.theAnotherUser);
+
       this.theAnotherUser2 = this.users.find((i) => {
         return i._id == this.theAnotherUser;
       });
-      console.log(this.theAnotherUser2);
+
       this.overlay = false;
-      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+     this.socket = this.$soketio;
       this.socket.emit("JoinChat", this.chatId);
       this.socket.on("newMessage", (data) => {
-        console.log("new msg");
         this.playSound(
           "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
         );
@@ -231,7 +247,6 @@ export default {
         this.$store.commit("pushNewMessage", pushMsg);
       });
     } catch (error) {
-      console.log(error);
       this.errors = error;
       this.overlay = false;
     }

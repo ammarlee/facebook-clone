@@ -188,7 +188,6 @@ const router = new VueRouter({
   routes,
   
   scrollBehavior () {
-        console.log("starrt");
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(

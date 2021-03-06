@@ -5,6 +5,7 @@
     v-model="drawer"
     style="position: absolute"
     class="white black--text"
+    :style="{  'min-height': $screen.height + 'px' }"
     v-if="currentUser"
   >
     <div style="cursor: pointer ;background:#232F3E" @click="profileNavigate">
@@ -20,7 +21,7 @@
       </v-list-item-avatar>
       <v-list-item-group class="text-capitalize d-inline-block text-center white--text">
         <v-list-item-content>
-          <v-list-item-title v-if="currentUser" class="font-weight-medium white--text">
+          <v-list-item-title v-if="currentUser" class="font-weight-medium white--text ml-2">
             Hello , {{ currentUser.name }}
             <br />
           </v-list-item-title>

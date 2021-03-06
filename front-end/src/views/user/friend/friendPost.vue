@@ -2,15 +2,16 @@
   <v-app>
     <v-container>
       <div>
-        <div>
+        <div> 
           <v-row>
             <v-col cols="3"></v-col>
-            <v-col cols="6">
+            <v-col cols="12" sm="6">
               <div v-if="posts.length >0">
               <app-all-posts
                 v-for="(post,key) in posts"
                 :post="post"
                 :key="key"
+                 heights="270"
                 :id="'div'+post._id"
               >
                 <div slot="options">

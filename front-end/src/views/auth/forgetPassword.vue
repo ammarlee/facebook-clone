@@ -2,8 +2,11 @@
 <v-app >
   <template>
     <div class="mt-10">
+      <router-link to="/login" tag="div"  class="mx-auto text-center ">
+         <v-icon  style="cursor: pointer;font-size: 68px;" >mdi-facebook</v-icon>
+        </router-link>
       <v-card
-      class="mx-auto mt-15"
+      class="mx-auto mt-3"
       style="max-width: 500px;"
     >
     
@@ -92,11 +95,9 @@ import Functions from "../../../server/api"
              this.msg = null
                try {
                  this.loading=true
-               const res = await Functions.forgetPw({email:this.email})
-               console.log(res.data.msg);
+               const res = await Functions.forgetPassword({email:this.email})
                this.msg= res.data.msg
                  this.loading=false
-
                    
                } catch (error) {
                  this.loading=false

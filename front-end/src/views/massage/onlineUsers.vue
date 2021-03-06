@@ -29,11 +29,11 @@
 </template>
 
 <script>
-import socktConnect from "socket.io-client";
+
 export default {
   name: "onlineusers",
   mounted() {
-    this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+    this.socket = this.$soketio;
     if (this.$store.getters.getUser) {
       this.socket.emit("goOnlineTwo", this.$store.getters.getUser);
     }

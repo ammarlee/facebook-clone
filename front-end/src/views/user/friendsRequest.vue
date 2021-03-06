@@ -51,7 +51,7 @@
 
 <script>
 import Functions from "../../../server/api";
-import socktConnect from "socket.io-client";
+
 
 export default {
   name: "friendsRequest",
@@ -62,10 +62,10 @@ export default {
   },
   async mounted() {
     try {
-      this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+     this.socket = this.$soketio;
       this.overlay = true;
       const res = await Functions.getFreindRequest(
-        this.$store.getters.getUser._id
+        this.currentUser._id
       );
       this.users = res.data.friends;
       this.overlay = false;

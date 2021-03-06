@@ -10,15 +10,15 @@ const hpp = require('hpp')
 const mongoSanitize = require('express-mongo-sanitize')
 const morgan = require('morgan');
 const xss = require('xss-clean')
-const AuthRoutes = require(path.join(__dirname,'./routes/auth'))
-const UserRoutes =require(path.join(__dirname,'./routes/user'))
-const PostRoutes =require(path.join(__dirname,'./routes/post'))
-const AdminRoutes = require(path.join(__dirname,'./routes/admin'))
-const HomeRoutes =require(path.join(__dirname,'./routes/home'))
+const AuthRoutes = require('./routes/auth')
+const UserRoutes =require('./routes/user')
+const PostRoutes =require('./routes/post')
+const AdminRoutes = require('./routes/admin')
+const HomeRoutes =require('./routes/home')
 var MongoDBStore = require('connect-mongodb-session')(session)
 const cookieParser = require('cookie-parser')
-const User = require(path.join(__dirname,'./models/user'))
-const Message = require(path.join(__dirname,'./models/message'))
+const User = require('./models/user')
+const Message = require('./models/message')
 const  livereload = require('connect-livereload')
 const MONGODB_URI ='mongodb+srv://ammarlee:tonightwewilldoit@cluster0.j47ye.mongodb.net/facebook'; 
 
@@ -37,7 +37,7 @@ app.use((req,res,next)=>{
     next()
 })
 let cors = require('cors');
-const socket = require(path.join(__dirname,'./socket'));
+const socket = require('./socket');
 app.use(hamlet())
 app.use(morgan('dev'))
 
@@ -45,7 +45,7 @@ app.use(mongoSanitize())
 app.use(xss())
 app.use(hpp())
 app.use(cors({
-   origin:['https://facebook-clones.herokuapp.com/'],
+   origin:['http://localhost:8080'],
     methods:['GET','POST'],
     credentials: true ,// enable set cookie
     exposedHeaders: ['set-cookie']
@@ -108,6 +108,7 @@ let getFriendsTwo = async(userId)=>{
   }
   
 }
+const moment = require('moment')
 let newMsg = async(data)=>{
   try {
     const msg = await new Message({
@@ -142,30 +143,22 @@ let newMsg = async(data)=>{
     
   }
 }
-const port =process.env.PORT || 3000
-
-if(process.env.NODE_ENV ==="production"){
-  app.use(express.static(__dirname +"/dist/"))
-  app.get(/.*/,(req,res)=>{
-    res.sendFile(__dirname + '/dist/index.html' )
-  })
-}
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
+   
     // app.listen(3000);
-    const server = app.listen(port);
+    const server = app.listen(3000);
     const io = require('./socket').init(server)
     io.onlineUsersTwo ={}
-
    io.on('connection',socket=>{
-    //  test log out 
      // first step [get user id and then add it to the room] 
     socket.on('joinnotificationsRoom',(data)=>{
      socket.join(data._id)
     })
       // second step
       socket.on('sendFriendRequest',(data)=>{
+        console.log('sendFriendRequest >>>>>>>>>>>>>');
         io.to(data.friendId).emit('newRequest',
         {
         action:"newNotification",
@@ -213,16 +206,11 @@ mongoose
       getFriendsTwo(data._id).then(friends=>{
         let onlineFriends = friends.filter(friend=>io.onlineUsersTwo[friend.friendId._id])
         socket.emit('currentOnlineFriendsTwo',onlineFriends)
-        // testing
         io.sockets.emit("hello", data);
       })
-
       socket.on('disconnect',(data)=>{ 
       io.onlineUsersTwo[data._id]=false
       io.sockets.emit("broadcast", data._id);
-
-      
-      
       })
     })
    
@@ -235,8 +223,6 @@ mongoose
         io.to(data.friendId).emit('newMsgFromUrFriend',data)
       })
     })
-
-
    })
 }) 
   .catch(err => {

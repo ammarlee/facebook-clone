@@ -12,10 +12,9 @@ const find= function readCookie(name) {
     return null;
 }
 // delete the cooki 
-function eraseCookie(name) {   
-    document.cookie = name+'=; Max-Age=-99999999;';  
+function eraseCookie() {   
+    document.cookie = "TokenUser"+'=; Max-Age=-99999999;';  
 }
-console.log(eraseCookie);
 // send the JTW with headers
 let axiosConfig = {
     headers: {
@@ -59,15 +58,15 @@ static async  signup(data){
     data)
 }
 static async  resetPassword(data){
-    return await axios.post(`${url}reset-password`,
-    {pic:data.pic,profile:data.profile})
+    return await axios.post(`${url}reset-password`,data)
 }
 
 static async  forgetPassword(data){
     return await axios.post(`${url}forget`,
-    {pic:data.pic,profile:data.profile})
+    {email:data.email})
 }
 static async  logout(){
+    eraseCookie()
     return await axios.post(`${url}logout`)
 }
 static async getuserToken(token){
@@ -108,20 +107,23 @@ static async  removeLike(data){
     {user:data.user,postId:data.postId})
 }
 static async  deleteComment(data){
-    return await axios.post(`${url}delete-comment/${data.commentId}`,
-    {pic:data.pic,profile:data.profile})
+    return await axios.post(`${url}delete-comment/${data.commentId}`,{postId:data.postId})
 }
 static async  savePost(data){
     return await axios.post(`${url}save-post`,
     {postId:data.post._id,img:data.post.img,description:data.post.description,userId:data.userId})
 }
+static async  removeSaved(data){
+    return await axios.post(`${url}zremoveSaved`,data)
+}
+
 static async  getSavedPosts(data){
     return await axios.get(`${url}saved-posts/${data}`)
 }
 
 static async  editComment(data){
     return await axios.post(`${url}edit-comment/${data.commentId}`,
-    {pic:data.pic,profile:data.profile})
+    {postId:data.postId,newComment:data.newComment})
 }
 static async getComments(data){
     return await axios.get(`${url}comments`,data,axiosConfig)
